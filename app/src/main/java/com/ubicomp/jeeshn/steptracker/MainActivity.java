@@ -26,6 +26,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     double[] gravity = {0, 0, 0};
 
     int readingCount = 0;
+    int stepCount = 0;
+    int initialCounterValue = 0;
 
     TextView txtStepCount;
 
@@ -47,8 +49,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mAccelerometer = mSensorManager
                 .getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        mStepCounter  =mSensorManager
-                .getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
+        mStepCounter  = mSensorManager
+                .getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
         StartSensor();
     }
 
@@ -84,8 +86,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         switch (event.sensor.getType()) {
             case Sensor.TYPE_ACCELEROMETER:
                 this.CalculateMovement(event);
-            //case Sensor.TYPE_STEP_COUNTER:
+                break;
+            case Sensor.TYPE_STEP_COUNTER:
                 //this.IncrementStepCount(event);
+                break;
         }
     }
 
@@ -143,6 +147,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     void IncrementStepCount(SensorEvent event)
     {
-        txtStepCount.setText(String.valueOf(event.values[0]));
+        if(initialCounterValue==0)
+        {
+            initialCounterValue = (int) event.values[0];
+        }
+        if(event.values[0]>0) {
+            stepCount = (int)event.values[0] - initialCounterValue;
+            txtStepCount.setText(String.valueOf(stepCount));
+        }
     }
 }
