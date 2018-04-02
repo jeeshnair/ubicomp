@@ -8,53 +8,64 @@ import android.hardware.SensorManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.TextView;
-
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
-    private boolean mInitialized; // used for initializing sensor only once
-    private SensorManager mSensorManager;
-    private Sensor mAccelerometer;
+    SensorManager mSensorManager;
+    Sensor mAccelerometer;
+    Sensor mStepCounter;
 
-    private final float NOISE = (float) 0.00001;
-    double mLastX = 0;
-    double mLastY = 0;
-    double mLastZ = 0;
-    TextView txtSpace = null;
-    TextView txtHorizontal = null;
-    TextView txtVertical = null;
-    GraphView horizontalGraph = null;
-    LineGraphSeries<DataPoint> horizontalSeries;
+    GraphView rawGraph = null;
+    GraphView smoothGraph = null;
+    LineGraphSeries<DataPoint> rawSeries;
+    LineGraphSeries<DataPoint> smoothSeries;
 
-    int incrementCountHorizontal = 0;
-    int incrementCountVertical = 0;
-    int incrementCountSpace = 0;
+    double[] gravity = {0, 0, 0};
+
+    int readingCount = 0;
+
+    TextView txtStepCount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        txtSpace = findViewById(R.id.txtSpace);
-        txtHorizontal = findViewById(R.id.txtHorizontal);
-        txtVertical = findViewById(R.id.txtVertical);
+        txtStepCount = findViewById((R.id.txtStepCount));
+        rawGraph = findViewById(R.id.graphRaw);
+        smoothGraph = findViewById(R.id.graphSmooth);
 
-        horizontalGraph = findViewById((R.id.graphHorizontal));
-        horizontalSeries = new LineGraphSeries<DataPoint>();
-        horizontalGraph.addSeries(horizontalSeries);
+        rawSeries = new LineGraphSeries<DataPoint>();
+        this.InitializeGraphControl(rawGraph,rawSeries);
 
-        horizontalGraph.getViewport().setScalable(true);
-        horizontalGraph.getViewport().setScalableY(true);
+        smoothSeries = new LineGraphSeries<DataPoint>();
+        this.InitializeGraphControl(smoothGraph,smoothSeries);
 
-
-        mInitialized = false;
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mAccelerometer = mSensorManager
                 .getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        mStepCounter  =mSensorManager
+                .getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
         StartSensor();
+    }
+
+    void InitializeGraphControl(GraphView graph, LineGraphSeries<DataPoint> series)
+    {
+        graph.getViewport().setYAxisBoundsManual(true);
+        graph.getViewport().setMinY(0);
+        graph.getViewport().setMaxY(20);
+
+        graph.getViewport().setXAxisBoundsManual(true);
+        graph.getViewport().setMinX(0);
+        graph.getViewport().setMaxX(80);
+
+        graph.getViewport().setScalable(true);
+        graph.getViewport().setScalableY(true);
+
+        graph.addSeries(series);
     }
 
     private void StartSensor() {
@@ -62,21 +73,33 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 this,
                 mAccelerometer,
                 SensorManager.SENSOR_DELAY_NORMAL);
+        mSensorManager.registerListener(
+                this,
+                mStepCounter,
+                SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        this.CalculateMovement(event);
+        switch (event.sensor.getType()) {
+            case Sensor.TYPE_ACCELEROMETER:
+                this.CalculateMovement(event);
+            //case Sensor.TYPE_STEP_COUNTER:
+                //this.IncrementStepCount(event);
+        }
     }
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
     }
 
     protected void onResume() {
         super.onResume();
         mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+        mSensorManager.registerListener(
+                this,
+                mStepCounter,
+                SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     protected void onPause() {
@@ -85,16 +108,18 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     // Calculates the horizontal , vertical and in space movement based on Accelerometer data.
-    void CalculateMovement(SensorEvent event)
-    {
+    void CalculateMovement(SensorEvent event) {
         // event object contains values of acceleration, read those
         double x = event.values[0];
         double y = event.values[1];
         double z = event.values[2];
+        double rawd = Math.sqrt(x * x + y * y + z * z);
+
+        readingCount= readingCount+1;
+
+        this.PlotGraph(rawd,readingCount, rawSeries);
 
         final double alpha = 0.8; // constant for our filter below
-
-        double[] gravity = {0, 0, 0};
 
         // Isolate the force of gravity with the low-pass filter.
         gravity[0] = alpha * gravity[0] + (1 - alpha) * event.values[0];
@@ -106,53 +131,18 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         y = event.values[1] - gravity[1];
         z = event.values[2] - gravity[2];
 
-        if (!mInitialized) {
-            // sensor is used for the first time, initialize the last read values
-            mLastX = x;
-            mLastY = y;
-            mLastZ = z;
-            mInitialized = true;
-        } else {
-            // sensor is already initialized, and we have previously read values.
-            // take difference of past and current values and decide which
-            // axis acceleration was detected by comparing values
+        double smoothd = Math.sqrt(x * x + y * y + z * z);
 
-            double deltaX = Math.abs(mLastX - x);
-            double deltaY = Math.abs(mLastY - y);
-            double deltaZ = Math.abs(mLastZ - z);
-            if (deltaX < NOISE)
-                deltaX = (float) 0.0;
-            if (deltaY < NOISE)
-                deltaY = (float) 0.0;
-            if (deltaZ < NOISE)
-                deltaZ = (float) 0.0;
-            mLastX = x;
-            mLastY = y;
-            mLastZ = z;
-
-            if (deltaX > deltaY) {
-                incrementCountHorizontal++;
-                if (incrementCountHorizontal > 0) {
-                    txtHorizontal.setText(String.valueOf(incrementCountHorizontal));
-                    this.PlotGraph(deltaX,incrementCountHorizontal);
-                }
-            } else if (deltaY > deltaX) {
-                incrementCountVertical++;
-                if (incrementCountVertical > 0) {
-                    txtVertical.setText(String.valueOf(incrementCountVertical));
-                }
-            } else if ((deltaZ > deltaX) && (deltaZ > deltaY)) {
-                incrementCountSpace++;
-                if (incrementCountSpace > 0) {
-                    txtSpace.setText(String.valueOf(incrementCountSpace));
-                }
-            } else {
-                // no shake detected
-            }
-        }
+        this.PlotGraph(smoothd,readingCount, smoothSeries);
     }
-    void PlotGraph(double deltaX, int readingCount)
+
+    void PlotGraph(double reading, int readingCount,  LineGraphSeries<DataPoint> series)
     {
-       horizontalSeries.appendData(new DataPoint(readingCount,deltaX), true,20000);
+        series.appendData(new DataPoint(readingCount,reading), true,20000);
+    }
+
+    void IncrementStepCount(SensorEvent event)
+    {
+        txtStepCount.setText(String.valueOf(event.values[0]));
     }
 }

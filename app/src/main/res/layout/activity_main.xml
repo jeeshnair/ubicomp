@@ -10,26 +10,44 @@
         android:layout_height="501dp"
         android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/txtHorizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+           <TextView
+               android:id="@+id/txtRawMerged"
+               android:layout_width="match_parent"
+               android:layout_height="wrap_content"
+               android:text="Raw Merged"
+               android:textAppearance="@android:style/TextAppearance.DeviceDefault" />
 
-   <com.jjoe64.graphview.GraphView
-            android:id="@+id/graphHorizontal"
-            android:layout_width="wrap_content"
-            android:layout_height="200dip" />
+           <com.jjoe64.graphview.GraphView
+               android:id="@+id/graphRaw"
+               android:layout_width="wrap_content"
+               android:layout_height="185dp" />
 
-        <TextView
-            android:id="@+id/txtVertical"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+           <TextView
+               android:id="@+id/txtSmoothMerged"
+               android:layout_width="match_parent"
+               android:layout_height="wrap_content"
+               android:text="Smooth Merged"
+               android:textAppearance="@android:style/TextAppearance.DeviceDefault" />
 
-        <TextView
-            android:id="@+id/txtSpace"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+           <com.jjoe64.graphview.GraphView
+               android:id="@+id/graphSmooth"
+               android:layout_width="wrap_content"
+               android:layout_height="172dp" />
 
-    </LinearLayout>
+           <EditText
+               android:id="@+id/txtStepCounterLabel"
+               android:layout_width="match_parent"
+               android:layout_height="wrap_content"
+               android:ems="10"
+               android:inputType="textPersonName"
+               android:text="Step Counter" />
+
+           <TextView
+               android:id="@+id/txtStepCount"
+               android:layout_width="match_parent"
+               android:layout_height="wrap_content"
+               android:text="0" />
+
+       </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>
