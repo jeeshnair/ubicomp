@@ -20,7 +20,7 @@
            <com.jjoe64.graphview.GraphView
                android:id="@+id/graphRaw"
                android:layout_width="wrap_content"
-               android:layout_height="185dp" />
+               android:layout_height="143dp" />
 
            <TextView
                android:id="@+id/txtSmoothMerged"
@@ -32,7 +32,7 @@
            <com.jjoe64.graphview.GraphView
                android:id="@+id/graphSmooth"
                android:layout_width="wrap_content"
-               android:layout_height="172dp" />
+               android:layout_height="139dp" />
 
            <EditText
                android:id="@+id/txtStepCounterLabel"
@@ -44,6 +44,20 @@
 
            <TextView
                android:id="@+id/txtStepCount"
+               android:layout_width="match_parent"
+               android:layout_height="wrap_content"
+               android:text="0" />
+
+           <EditText
+               android:id="@+id/txtCalculatedStepLabel"
+               android:layout_width="match_parent"
+               android:layout_height="wrap_content"
+               android:ems="10"
+               android:inputType="textPersonName"
+               android:text="Calculated Step Counter" />
+
+           <TextView
+               android:id="@+id/txtCalculatedStep"
                android:layout_width="match_parent"
                android:layout_height="wrap_content"
                android:text="0" />
