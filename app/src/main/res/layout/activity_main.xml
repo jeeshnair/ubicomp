@@ -14,7 +14,7 @@
                android:id="@+id/txtRawMerged"
                android:layout_width="match_parent"
                android:layout_height="wrap_content"
-               android:text="Raw Merged"
+               android:text="Raw(red-x ,green-y,yellow-z,magenta-root of squares)"
                android:textAppearance="@android:style/TextAppearance.DeviceDefault" />
 
            <com.jjoe64.graphview.GraphView
@@ -26,7 +26,7 @@
                android:id="@+id/txtSmoothMerged"
                android:layout_width="match_parent"
                android:layout_height="wrap_content"
-               android:text="Smooth Merged"
+               android:text="Smooth(red-x ,green-y,yellow-z,magenta-root of squares)"
                android:textAppearance="@android:style/TextAppearance.DeviceDefault" />
 
            <com.jjoe64.graphview.GraphView
