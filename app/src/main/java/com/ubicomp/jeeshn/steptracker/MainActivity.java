@@ -14,6 +14,12 @@ import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
+import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
     SensorManager mSensorManager;
@@ -43,6 +49,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     int calculatedStepCount = 0;
     int initialCounterValue = 0;
 
+    int LAG_SIZE = 5;
+    int DATA_SAMPLING_SIZE = 30;
+
     TextView txtStepCount;
     TextView txtCalculatedStepCount;
     int StepDetected = 1;
@@ -53,13 +62,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     long streakStartTime;
     long streakPrevTime;
 
-    private float rawAccelValues[] = new float[3];
+    float rawAccelValues[] = new float[3];
 
     // smoothing accelerometer signal stuff
-    private float accelValueHistory[][] = new float[3][SMOOTHING_WINDOW_SIZE];
-    private float runningAccelTotal[] = new float[3];
-    private float curAccelAvg[] = new float[3];
-    private int curReadIndex = 0;
+    float accelValueHistory[][] = new float[3][SMOOTHING_WINDOW_SIZE];
+    float runningAccelTotal[] = new float[3];
+    float curAccelAvg[] = new float[3];
+    int curReadIndex = 0;
+    List<Double> zscoreCalculationValues = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -223,7 +233,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             this.PlotGraph(curAccelAvg[1], readingCount, smoothYSeries);
             this.PlotGraph(curAccelAvg[2], readingCount, smoothZSeries);
 
-            if (smoothd >= 1.5) {
+           /* if (smoothd >= 1.5) {
                 this.state = this.StepDetected;
                 if (this.previousState != this.state) {
                     streakStartTime = System.currentTimeMillis();
@@ -238,6 +248,21 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             } else {
                 this.state = this.Idle;
                 this.previousState = this.state;
+            } */
+
+            if(zscoreCalculationValues.size()< DATA_SAMPLING_SIZE)
+            {
+                zscoreCalculationValues.add(smoothd);
+            }
+            else if(zscoreCalculationValues.size()== DATA_SAMPLING_SIZE)
+            {
+                calculatedStepCount = this.DetectPeak(zscoreCalculationValues,LAG_SIZE,3d,0.3);
+                txtCalculatedStepCount.setText((String.valueOf(calculatedStepCount)));
+            }
+            else if(zscoreCalculationValues.size()== DATA_SAMPLING_SIZE)
+            {
+                zscoreCalculationValues.clear();
+                zscoreCalculationValues.add(smoothd);
             }
         }
         catch(Exception ex)
@@ -261,5 +286,62 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             stepCount = (int)event.values[0] - initialCounterValue;
             txtStepCount.setText(String.valueOf(stepCount));
         }
+    }
+
+    /**
+     * "Smoothed zero-score alogrithm" shamelessly copied from https://stackoverflow.com/a/22640362/6029703
+     *  Uses a rolling mean and a rolling deviation (separate) to identify peaks in a vector
+     *
+     * @param y - The input vector to analyze
+     * @param lag - The lag of the moving window (i.e. how big the window is)
+     * @param threshold - The z-score at which the algorithm signals (i.e. how many standard deviations away from the moving mean a peak (or signal) is)
+     * @param influence - The influence (between 0 and 1) of new signals on the mean and standard deviation (how much a peak (or signal) should affect other values near it)
+     * @return - The calculated averages (avgFilter) and deviations (stdFilter), and the signals (signals)
+     */
+
+    public int DetectPeak(List<Double> y, int lag, Double threshold, Double influence) {
+        int peaksDetected = 0;
+        //init stats instance
+        SummaryStatistics stats = new SummaryStatistics();
+
+        //the results (peaks, 1 or -1) of our algorithm
+        ArrayList<Integer> signals = new ArrayList<Integer>(Collections.nCopies(y.size(), 0));
+        //filter out the signals (peaks) from our original list (using influence arg)
+        ArrayList<Double> filteredY = new ArrayList<Double>(y);
+        //the current average of the rolling window
+        ArrayList<Double> avgFilter = new ArrayList<Double>(Collections.nCopies(y.size(), 0.0d));
+        //the current standard deviation of the rolling window
+        ArrayList<Double> stdFilter = new ArrayList<Double>(Collections.nCopies(y.size(), 0.0d));
+        //init avgFilter and stdFilter
+        for(int i=0;i<lag;i++) {
+            stats.addValue(i);
+        }
+        avgFilter.set(lag-1,stats.getMean());
+        stdFilter.set(lag-1 ,  Math.sqrt(stats.getPopulationVariance() ));
+        stats.clear();
+
+        for(int i = lag ; i<y.size();i++) {
+            if (Math.abs(y.get(i) - avgFilter.get(i - 1)) > threshold * stdFilter.get(i - 1)) {
+                //this is a signal (i.e. peak), determine if it is a positive or negative signal
+                signals.set(i, (y.get(i) > avgFilter.get(i - 1) ? 1 : -1));
+                peaksDetected = peaksDetected+1;
+                //filter this signal out using influence
+                filteredY.set(i,(influence * y.get(i)) + ((1-influence) * filteredY.get(i-1)));
+            } else {
+                //ensure this signal remains a zero
+                signals.set(i, 0);
+                //ensure this value is not filtered
+                filteredY.set(i, y.get(i));
+            }
+            //update rolling average and deviation
+            for(int j=i-lag;j<i;j++)
+            {
+                stats.addValue(filteredY.get(i));
+                avgFilter.set(i,stats.getMean());
+                stdFilter.set(i, Math.sqrt(stats.getPopulationVariance()));
+            }
+        }
+
+        return peaksDetected;
     }
 }
