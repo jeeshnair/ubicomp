@@ -129,6 +129,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         graph.getViewport().setScalableY(true);
 
         graph.addSeries(series);
+        series.appendData(new DataPoint(0,0), true,20000);
     }
 
     private void StartSensor() {
@@ -197,6 +198,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                             event.values[1] * event.values[1] +
                             event.values[2] * event.values[2]);
 
+            if(rawd<=9)
+            {
+                return;
+            }
+
             readingCount = readingCount + 1;
 
             this.PlotGraph(rawd, readingCount, rawSeries);
@@ -208,9 +214,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             rawAccelValues[1] = event.values[1];
             rawAccelValues[2] = event.values[2];
 
+            rawAccelValues = IsolateGravity(rawAccelValues);
+
+            rawd = Math.sqrt(
+                    event.values[0] * event.values[0] +
+                            event.values[1] * event.values[1] +
+                            event.values[2] * event.values[2]);
+
+
             // Smoothing algorithm copied from
             // https://github.com/jonfroehlich/CSE590Sp2018/blob/master/L01-ReadAndVisAccel/app/src/main/java/makeabilitylab/l01_readandvisaccel/AccelView.java
-            for (int i = 0; i < 3; i++) {
+            /*for (int i = 0; i < 3; i++) {
                 runningAccelTotal[i] = runningAccelTotal[i] - accelValueHistory[i][curReadIndex];
                 accelValueHistory[i][curReadIndex] = rawAccelValues[i];
                 runningAccelTotal[i] = runningAccelTotal[i] + accelValueHistory[i][curReadIndex];
@@ -231,7 +245,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             this.PlotGraph(smoothd, readingCount, smoothSeries);
             this.PlotGraph(curAccelAvg[0], readingCount, smoothXSeries);
             this.PlotGraph(curAccelAvg[1], readingCount, smoothYSeries);
-            this.PlotGraph(curAccelAvg[2], readingCount, smoothZSeries);
+            this.PlotGraph(curAccelAvg[2], readingCount, smoothZSeries);*/
 
            /* if (smoothd >= 1.5) {
                 this.state = this.StepDetected;
@@ -252,17 +266,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             if(zscoreCalculationValues.size()< DATA_SAMPLING_SIZE)
             {
-                zscoreCalculationValues.add(smoothd);
+                zscoreCalculationValues.add(rawd);
             }
             else if(zscoreCalculationValues.size()== DATA_SAMPLING_SIZE)
             {
-                calculatedStepCount = this.DetectPeak(zscoreCalculationValues,LAG_SIZE,3d,0.3);
+                calculatedStepCount = this.DetectPeak(zscoreCalculationValues,LAG_SIZE,3d,0d);
                 txtCalculatedStepCount.setText((String.valueOf(calculatedStepCount)));
-            }
-            else if(zscoreCalculationValues.size()== DATA_SAMPLING_SIZE)
-            {
                 zscoreCalculationValues.clear();
-                zscoreCalculationValues.add(smoothd);
             }
         }
         catch(Exception ex)
@@ -314,7 +324,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         ArrayList<Double> stdFilter = new ArrayList<Double>(Collections.nCopies(y.size(), 0.0d));
         //init avgFilter and stdFilter
         for(int i=0;i<lag;i++) {
-            stats.addValue(i);
+            stats.addValue(y.get(i));
         }
         avgFilter.set(lag-1,stats.getMean());
         stdFilter.set(lag-1 ,  Math.sqrt(stats.getPopulationVariance() ));
@@ -337,9 +347,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             for(int j=i-lag;j<i;j++)
             {
                 stats.addValue(filteredY.get(i));
-                avgFilter.set(i,stats.getMean());
-                stdFilter.set(i, Math.sqrt(stats.getPopulationVariance()));
             }
+            avgFilter.set(i,stats.getMean());
+            stdFilter.set(i, Math.sqrt(stats.getPopulationVariance()));
+
         }
 
         return peaksDetected;
