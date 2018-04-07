@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".DebugView">
+
+    <LinearLayout
+        android:layout_width="371dp"
+        android:layout_height="501dp"
+        android:orientation="vertical"
+        tools:layout_editor_absoluteX="7dp"
+        tools:layout_editor_absoluteY="0dp">
+        <TextView
+            android:id="@+id/txtRawMerged"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Raw minus Gravity(red-x ,green-y,yellow-z,magenta-root of squares)"
+            android:textAppearance="@android:style/TextAppearance.DeviceDefault" />
+
+        <com.jjoe64.graphview.GraphView
+            android:id="@+id/graphRaw"
+            android:layout_width="wrap_content"
+            android:layout_height="92dp" />
+
+        <TextView
+            android:id="@+id/txtSmoothMerged"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Professor's Smoothing(red-x ,green-y,yellow-z,magenta-root of squares)"
+            android:textAppearance="@android:style/TextAppearance.DeviceDefault" />
+
+        <com.jjoe64.graphview.GraphView
+            android:id="@+id/graphSmooth"
+            android:layout_width="wrap_content"
+            android:layout_height="94dp" />
+        <TextView
+            android:id="@+id/txtPeak"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Peak Detection ( with smoothing )"
+            android:textAppearance="@android:style/TextAppearance.DeviceDefault" />
+
+        <com.jjoe64.graphview.GraphView
+            android:id="@+id/graphPeak"
+            android:layout_width="wrap_content"
+            android:layout_height="92dp" />
+
+        <TextView
+            android:id="@+id/txtStepCounterLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="textPersonName"
+            android:text="Step Counter"
+            android:textColor="@color/colorAccent"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/txtStepCount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="0" />
+
+        <TextView
+            android:id="@+id/txtCalculatedStepLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="textPersonName"
+            android:text="Calculated Step Counter"
+            android:textColor="@color/colorAccent"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/txtCalculatedStep"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="0" />
+    </LinearLayout>
+
+</FrameLayout>
