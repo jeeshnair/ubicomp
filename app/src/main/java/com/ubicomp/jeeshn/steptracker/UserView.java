@@ -8,30 +8,23 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
-
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.components.Legend;
-import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
-import com.github.mikephil.charting.highlight.Highlight;
-import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
-
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class UserView extends Fragment {
     private OnFragmentInteractionListener mListener;
 
-    private static String TAG = "MainActivity";
-
-    private float[] yData = {25.3f, 10.6f, 66.76f, 44.32f, 46.01f, 16.89f, 23.9f};
-
-    private String[] xData = {"Mitch", "Jessica" , "Mohammad" , "Kelsey", "Sam", "Robert", "Ashley"};
-
+    private static String TAG = "UserView";
     PieChart pieChart;
+
+    private Timer pieChartRefreshTimer;
 
     public UserView() {
         // Required empty public constructor
@@ -40,62 +33,45 @@ public class UserView extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        SharedState.getInstance().setGoal(1000);
         Log.d(TAG, "onCreate: starting to create chart");
-
 
         pieChart =view.findViewById(R.id.progressChart);
 
         Description description = new Description();
-        description.setText("Sales by employee (In Thousands $) ");
+        description.setText("Step Progress");
 
         pieChart.setRotationEnabled(true);
-
-        //pieChart.setUsePercentValues(true);
-
-        //pieChart.setHoleColor(Color.BLUE);
-
-        //pieChart.setCenterTextColor(Color.BLACK);
-
         pieChart.setHoleRadius(25f);
-
         pieChart.setTransparentCircleAlpha(0);
+        pieChart.setCenterText("Step Tracker");
+        pieChart.setCenterTextSize(20);
 
-        pieChart.setCenterText("Super Cool Chart");
-
-        pieChart.setCenterTextSize(10);
-
-        //pieChart.setDrawEntryLabels(true);
-
-        //pieChart.setEntryLabelTextSize(20);
-
-        //More options just check out the documentation!
-        addDataSet();
-
-        pieChart.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
+        pieChartRefreshTimer = new Timer();
+        pieChartRefreshTimer.schedule(new TimerTask() {
             @Override
-            public void onValueSelected(Entry e, Highlight h) {
-                Log.d(TAG, "onValueSelected: Value select from chart.");
-                Log.d(TAG, "onValueSelected: " + e.toString());
-                Log.d(TAG, "onValueSelected: " + h.toString());
-
-                int pos1 = e.toString().indexOf("(sum): ");
-
-                String sales = e.toString().substring(pos1 + 7);
-                for(int i = 0; i < yData.length; i++){
-
-                    if(yData[i] == Float.parseFloat(sales)){
-                        pos1 = i;
-                        break;
-                    }
-                }
-                String employee = xData[pos1 + 1];
-                Toast.makeText(getActivity(), "Employee " + employee + "\n" + "Sales: $" + sales + "K", Toast.LENGTH_LONG).show();
+            public void run() {
+                TimerMethod();
             }
-            @Override
-            public void onNothingSelected() {
-            }
-        });
+
+        }, 0, 200);
     }
+
+    private void TimerMethod()
+    {
+        //This method is called directly by the timer
+        //and runs in the same thread as the timer.
+
+        //We call the method that will work with the UI
+        //through the runOnUiThread method.
+        getActivity().runOnUiThread(Timer_Tick);
+    }
+
+    private Runnable Timer_Tick = new Runnable() {
+        public void run() {
+            RefreshDataSet();
+        }
+    };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -141,49 +117,29 @@ public class UserView extends Fragment {
         void onFragmentInteraction(String tag);
     }
 
-    private void addDataSet() {
+    private void RefreshDataSet() {
 
         Log.d(TAG, "addDataSet started");
 
         ArrayList<PieEntry> yEntrys = new ArrayList<>();
 
-        for(int i = 0; i < yData.length; i++){
-
-            yEntrys.add(new PieEntry(yData[i] , xData[i]));
-
-        }
+        yEntrys.add(new PieEntry(SharedState.getInstance().getSteps() , "Total Steps Taken"));
+        yEntrys.add(new PieEntry(SharedState.getInstance().getRemainingGoal() , "Remaining Steps"));
 
         //create the data set
-
-        PieDataSet pieDataSet = new PieDataSet(yEntrys, "Employee Sales");
-
+        PieDataSet pieDataSet = new PieDataSet(yEntrys, "Steps");
         pieDataSet.setSliceSpace(2);
-
-        pieDataSet.setValueTextSize(12);
+        pieDataSet.setValueTextSize(30);
+        pieDataSet.setValueTextColor(Color.WHITE);
 
         //add colors to dataset
-
         ArrayList<Integer> colors = new ArrayList<>();
-
         colors.add(Color.GRAY);
-
         colors.add(Color.BLUE);
-
-        colors.add(Color.RED);
-
-        colors.add(Color.GREEN);
-
-        colors.add(Color.CYAN);
-
-        colors.add(Color.YELLOW);
-
-        colors.add(Color.MAGENTA);
-
         pieDataSet.setColors(colors);
 
         //add legend to chart
         Legend legend = pieChart.getLegend();
-
         legend.setForm(Legend.LegendForm.CIRCLE);
         legend.setVerticalAlignment(Legend.LegendVerticalAlignment.BOTTOM);
         legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER);
@@ -191,12 +147,8 @@ public class UserView extends Fragment {
         legend.setDrawInside(false);
 
         //create pie data object
-
         PieData pieData = new PieData(pieDataSet);
-
         pieChart.setData(pieData);
-
         pieChart.invalidate();
-
     }
 }

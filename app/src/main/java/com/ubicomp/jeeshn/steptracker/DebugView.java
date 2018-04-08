@@ -312,6 +312,7 @@ public class DebugView extends Fragment implements SensorEventListener {
             else if(zscoreCalculationValues.size()== DATA_SAMPLING_SIZE)
             {
                 calculatedStepCount = calculatedStepCount + this.DetectPeak(zscoreCalculationValues,LAG_SIZE,0.30d,0d);
+                SharedState.getInstance().setSteps(calculatedStepCount);
                 txtCalculatedStepCount.setText((String.valueOf(calculatedStepCount)));
                 zscoreCalculationValues.clear();
                 zscoreCalculationValues.add(rawd);
