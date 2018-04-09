@@ -21,19 +21,8 @@
         <com.jjoe64.graphview.GraphView
             android:id="@+id/graphRaw"
             android:layout_width="wrap_content"
-            android:layout_height="92dp" />
+            android:layout_height="160dp" />
 
-        <TextView
-            android:id="@+id/txtSmoothMerged"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Professor's Smoothing(red-x ,green-y,yellow-z,magenta-root of squares)"
-            android:textAppearance="@android:style/TextAppearance.DeviceDefault" />
-
-        <com.jjoe64.graphview.GraphView
-            android:id="@+id/graphSmooth"
-            android:layout_width="wrap_content"
-            android:layout_height="94dp" />
         <TextView
             android:id="@+id/txtPeak"
             android:layout_width="match_parent"
@@ -44,7 +33,7 @@
         <com.jjoe64.graphview.GraphView
             android:id="@+id/graphPeak"
             android:layout_width="wrap_content"
-            android:layout_height="92dp" />
+            android:layout_height="140dp" />
 
         <TextView
             android:id="@+id/txtStepCounterLabel"

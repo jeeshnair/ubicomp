@@ -1,10 +1,10 @@
 package com.ubicomp.jeeshn.steptracker;
-
 import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
+// Adapter used by the Main activity to transition between views
 public class StepTrackerPagerAdapter extends FragmentPagerAdapter {
     Context mContext;
 

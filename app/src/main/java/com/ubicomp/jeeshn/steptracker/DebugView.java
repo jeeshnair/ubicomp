@@ -31,7 +31,6 @@ public class DebugView extends Fragment implements SensorEventListener {
     private Sensor mStepCounter;
 
     private GraphView rawGraph = null;
-    private GraphView smoothGraph = null;
     private GraphView peakGraph = null;
 
     private LineGraphSeries<DataPoint> rawXSeries;
@@ -100,7 +99,6 @@ public class DebugView extends Fragment implements SensorEventListener {
         txtCalculatedStepCount = view.findViewById((R.id.txtCalculatedStep));
 
         rawGraph = view.findViewById(R.id.graphRaw);
-        smoothGraph = view.findViewById(R.id.graphSmooth);
         peakGraph = view.findViewById(R.id.graphPeak);
 
         rawXSeries = new LineGraphSeries<>();
@@ -115,19 +113,6 @@ public class DebugView extends Fragment implements SensorEventListener {
         rawSeries = new LineGraphSeries<>();
         rawSeries.setColor(Color.MAGENTA);
         this.InitializeGraphControl(rawGraph, rawSeries, 0, 5, 80);
-
-        smoothXSeries = new LineGraphSeries<>();
-        smoothXSeries.setColor(Color.RED);
-        this.InitializeGraphControl(smoothGraph, smoothXSeries, 0, 5, 80);
-        smoothYSeries = new LineGraphSeries<>();
-        smoothYSeries.setColor(Color.GREEN);
-        this.InitializeGraphControl(smoothGraph, smoothYSeries, 0, 5, 80);
-        smoothZSeries = new LineGraphSeries<>();
-        smoothZSeries.setColor(Color.YELLOW);
-        this.InitializeGraphControl(smoothGraph, smoothZSeries, 0, 5, 80);
-        smoothSeries = new LineGraphSeries<>();
-        smoothSeries.setColor(Color.MAGENTA);
-        this.InitializeGraphControl(smoothGraph, smoothSeries, 0, 5, 80);
 
         peakSeries = new LineGraphSeries<>();
         this.InitializeGraphControl(peakGraph, peakSeries, -1, 1, 80);
@@ -300,6 +285,7 @@ public class DebugView extends Fragment implements SensorEventListener {
         stdFilter.set(lag - 1, stats.getStandardDeviation());
         stats.clear();
 
+        peakCount = peakCount + LAG_SIZE;
         for (int i = lag; i < inputs.size(); i++) {
             peakCount = peakCount + 1;
             if (Math.abs(inputs.get(i) - avgFilter.get(i - 1)) > threshold * stdFilter.get(i - 1)) {
@@ -327,7 +313,6 @@ public class DebugView extends Fragment implements SensorEventListener {
             }
             //update rolling average and deviation
             for (int j = i - lag; j < i; j++)
-
             {
                 stats.addValue(filteredY.get(j));
             }
