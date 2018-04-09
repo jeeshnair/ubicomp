@@ -15,11 +15,12 @@
 
         <com.github.mikephil.charting.charts.PieChart
 
+            android:id="@+id/progressChart"
+
             android:layout_width="match_parent"
 
-            android:layout_height="match_parent"
+            android:layout_height="454dp"></com.github.mikephil.charting.charts.PieChart>
 
-            android:id="@+id/progressChart"></com.github.mikephil.charting.charts.PieChart>
     </LinearLayout>
 
 </FrameLayout>

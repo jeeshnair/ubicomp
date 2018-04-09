@@ -8,22 +8,24 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
+
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
+// Fragment backing the step tracker user view
 public class UserView extends Fragment {
     private OnFragmentInteractionListener mListener;
 
     private static String TAG = "UserView";
-    PieChart pieChart;
-
+    private PieChart pieChart;
     private Timer pieChartRefreshTimer;
 
     public UserView() {
@@ -36,11 +38,12 @@ public class UserView extends Fragment {
         SharedState.getInstance().setGoal(1000);
         Log.d(TAG, "onCreate: starting to create chart");
 
-        pieChart =view.findViewById(R.id.progressChart);
+        pieChart = view.findViewById(R.id.progressChart);
 
         Description description = new Description();
-        description.setText("Step Progress");
+        description.setText("");
 
+        pieChart.setDescription(description);
         pieChart.setRotationEnabled(true);
         pieChart.setHoleRadius(25f);
         pieChart.setTransparentCircleAlpha(0);
@@ -57,8 +60,8 @@ public class UserView extends Fragment {
         }, 0, 200);
     }
 
-    private void TimerMethod()
-    {
+    // Time method to invoke pie chart refresh on UI thread.
+    private void TimerMethod() {
         //This method is called directly by the timer
         //and runs in the same thread as the timer.
 
@@ -117,6 +120,7 @@ public class UserView extends Fragment {
         void onFragmentInteraction(String tag);
     }
 
+    // Refresh the pie chart dataset based on latest step counts.
     private void RefreshDataSet() {
 
         Log.d(TAG, "addDataSet started");
@@ -127,7 +131,7 @@ public class UserView extends Fragment {
         yEntrys.add(new PieEntry(SharedState.getInstance().getRemainingGoal() , "Remaining Steps"));
 
         //create the data set
-        PieDataSet pieDataSet = new PieDataSet(yEntrys, "Steps");
+        PieDataSet pieDataSet = new PieDataSet(yEntrys, "");
         pieDataSet.setSliceSpace(2);
         pieDataSet.setValueTextSize(30);
         pieDataSet.setValueTextColor(Color.WHITE);
