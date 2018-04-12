@@ -9,7 +9,7 @@ There are two components to signal processing
 >- https://stackoverflow.com/questions/22583391/peak-signal-detection-in-realtime-timeseries-data
 >- https://en.wikipedia.org/wiki/Standard_score
 >- There is no java version, so ended up creating one and adjusting it to suite the assignment.
->The raw z score is z = (x-\mu)/\Sigma where \mu is mean and \Sigma is the standard deviation. X is input.  Algorithm samples a certain number of inputs maintains an average for a mini\mum number of sampled inputs( LAG_SIZE) , it then >evaluates the next input and detects a peak if
+>The raw z score is z = (x-$\mu$)/\Sigma where \mu is mean and \Sigma is the standard deviation. X is input.  Algorithm samples a certain number of inputs maintains an average for a mini\mum number of sampled inputs( LAG_SIZE) , it then >evaluates the next input and detects a peak if
 >>- X is within 1.5 and 3.8. This number was chosen empirically.
 >>- Abs(X(i)-\mu(LAG_SIZE))>(threshold)*\Sigma(LAG_SIZE)
 >>- X(i) >\mu(LAG_SIZE)
@@ -20,6 +20,9 @@ The figure shows the raw input and peaks detected during a walking experiment.
 # User Interface
 User interface is a simple pie chart as shown in figure 1. Motivation was to pick something simple which is easy to see digest and gives a clear view of where the user is with respect to the goals they have set. Pie chart is refreshed near real time using a shared state.
 Pie charts can also be used to convey physical intensity of the walk or run. User interface remains uncluttered.
+
+![User View](/_img/markdown-guidance/Screenshot_20180409-232738.png)
+![User View](/_img/markdown-guidance/Screenshot_20180409-232715.png)
 
 # Key struggles
 There were lot of firsts for me in the assignment .
@@ -36,5 +39,4 @@ It was a good first assignment. Learnings were
 >- Read \multiple papers on time series peak detection which enriched the understanding.
 
 # Video recording
-<video src="https://youtu.be/LKpJTM9yH5Y" width=400 controls>
-</video>
+[![Watch the video]()](https://youtu.be/LKpJTM9yH5Y)
