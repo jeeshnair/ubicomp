@@ -9,10 +9,10 @@ There are two components to signal processing
 >- https://stackoverflow.com/questions/22583391/peak-signal-detection-in-realtime-timeseries-data
 >- https://en.wikipedia.org/wiki/Standard_score
 >- There is no java version, so ended up creating one and adjusting it to suite the assignment.
->The raw z score is z = (x-$\mu$)/\Sigma where \mu is mean and \Sigma is the standard deviation. X is input.  Algorithm samples a certain number of inputs maintains an average for a mini\mum number of sampled inputs( LAG_SIZE) , it then >evaluates the next input and detects a peak if
+>The raw z score is z = (x-mu)/Sigma where mu is mean and Sigma is the standard deviation. X is input.  Algorithm samples a certain number of inputs maintains an average for a minimum number of sampled inputs( LAG_SIZE) , it then >evaluates the next input and detects a peak if
 >>- X is within 1.5 and 3.8. This number was chosen empirically.
->>- Abs(X(i)-\mu(LAG_SIZE))>(threshold)*\Sigma(LAG_SIZE)
->>- X(i) >\mu(LAG_SIZE)
+>>- Abs(X(i)-mu(LAG_SIZE))>(threshold)*Sigma(LAG_SIZE)
+>>- X(i) >mu(LAG_SIZE)
 >>- The mean and standard deviation gets updated for next LAG_SIZE window and gets repeated for next set of inputs.
 >>- All the peaks detected in the process are the steps detected among the inputs sampled.
 
@@ -36,7 +36,7 @@ Hard part was to be on track and simultaneously ramp up on new learnings. The st
 It was a good first assignment. Learnings were
 >- Android, Java
 >- Sensors, noisiness and signal processing
->- Read \multiple papers on time series peak detection which enriched the understanding.
+>- Read multiple papers on time series peak detection which enriched the understanding.
 
 # Video recording
 [![Watch the video]()](https://youtu.be/LKpJTM9yH5Y)
